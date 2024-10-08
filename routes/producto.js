@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { productoPOST, productosGET, productoGET, productoPUT, productoDELETE } = require('../controllers/producto');
+const { productoPOST, productosGET, productoGET, productoPUT, productoDELETE, marcarProductoDestacado, obtenerProductosDestacados } = require('../controllers/producto');
 const { validarJWT, esAdminRol } = require('../middlewares/auth.js');
 const { validarCampos } = require('../middlewares/validarCampos');
 const { existeProductoPorId } = require('../helpers/db-validators.js');
@@ -45,5 +45,11 @@ router.delete('/:id', [
     check('id').custom(existeProductoPorId),
     validarCampos
 ], productoDELETE);
+
+// Ruta para marcar o desmarcar un producto como destacado (solo administradores)
+router.put('/:id/destacar', [validarJWT, esAdminRol], marcarProductoDestacado);
+
+// Ruta para obtener los productos destacados
+router.get('/destacados', obtenerProductosDestacados);
 
 module.exports = router;

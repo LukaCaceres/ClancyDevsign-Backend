@@ -1,6 +1,39 @@
 const { request, response } = require('express');
 const Producto = require('../models/producto');
 
+// Marcar o desmarcar un producto como destacado
+const marcarProductoDestacado = async (req, res) => {
+    const { id } = req.params;
+    const { destacado } = req.body;
+
+    try {
+        const producto = await Producto.findByIdAndUpdate(id, { destacado }, { new: true });
+
+        if (!producto) {
+            return res.status(404).json({ msg: 'Producto no encontrado' });
+        }
+
+        res.json({
+            msg: destacado ? 'Producto marcado como destacado' : 'Producto desmarcado como destacado',
+            producto
+        });
+    } catch (error) {
+        console.error('Error al actualizar el producto:', error);
+        res.status(500).json({ msg: 'Error al actualizar el producto' });
+    }
+};
+
+// Obtener productos destacados
+const obtenerProductosDestacados = async (req, res) => {
+    try {
+        const productosDestacados = await Producto.find({ destacado: true, activo: true });
+        res.json({ productos: productosDestacados });
+    } catch (error) {
+        console.error('Error al obtener productos destacados:', error);
+        res.status(500).json({ msg: 'Error al obtener productos destacados' });
+    }
+};
+
 // Crear un nuevo producto
 const productoPOST = async (req = request, res = response) => {
     const { nombre, descripcion, categoria, precio, imagenes } = req.body;
@@ -125,6 +158,8 @@ const productoDELETE = async (req = request, res = response) => {
 };
 
 module.exports = {
+    marcarProductoDestacado,
+    obtenerProductosDestacados,
     productoPOST,
     productosGET,
     productoGET,
