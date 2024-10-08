@@ -1,5 +1,13 @@
 const Producto = require('../models/producto');
 const Usuario = require('../models/usuario');
+const Rol = require('../models/rol');
+
+const esRolValido = async (rol = '') => {
+    const existeRol = await Rol.findOne({ rol });
+    if (!existeRol) {
+        throw new Error(`El rol ${rol} no está registrado en la base de datos`);
+    }
+}
 
 
 // Verificar si el correo ya existe en la base de datos
@@ -26,8 +34,10 @@ const existeProductoPorId = async (id) => {
     }
 };
 
+
 module.exports = {
     existeProductoPorId,
     emailExiste,
     existeUsuarioPorId,
+    esRolValido,
 };

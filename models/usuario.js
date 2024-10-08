@@ -14,28 +14,27 @@ const UsuarioSchema = Schema({
     resetToken: { type: String, default: "" }
 });
 
-
-// Hook pre-save para crear y asignar carrito y favoritos
+// Hook pre-save para crear y asignar carrito y favoritos solo en la creación del usuario
 UsuarioSchema.pre('save', async function (next) {
-    try {
-        // Crear un nuevo carrito
-        const nuevoCarrito = new Carrito();
-        // Guardar el carrito en la base de datos
-        await nuevoCarrito.save();
-        // Asignar el ID del carrito al usuario
-        this.carrito = nuevoCarrito._id;
+    // Verificamos si el documento es nuevo para evitar la creación de carritos/favoritos en cada actualización
+    if (this.isNew) {
+        try {
+            // Crear un nuevo carrito y asignar el usuario al carrito
+            const nuevoCarrito = new Carrito({ usuario: this._id, productos: [] });
+            await nuevoCarrito.save();
+            this.carrito = nuevoCarrito._id;
 
-        // Crear nuevos favoritos
-        const nuevosFavoritos = new Favorito();
-        // Guardar los favoritos en la base de datos
-        await nuevosFavoritos.save();
-        // Asignar el ID de los favoritos al usuario
-        this.favorito = nuevosFavoritos._id;
+            // Crear nuevos favoritos y asignar el usuario a favoritos
+            const nuevosFavoritos = new Favorito({ usuario: this._id, productos: [] });
+            await nuevosFavoritos.save();
+            this.favorito = nuevosFavoritos._id;
 
-        // Continuar con el proceso de guardado
-        next();
-    } catch (error) {
-        next(error); // Pasar el error al siguiente middleware
+            next(); // Continuar con el proceso de guardado
+        } catch (error) {
+            next(error); // Pasar el error al siguiente middleware
+        }
+    } else {
+        next(); // Si no es un documento nuevo, pasar al siguiente middleware sin crear carrito/favoritos
     }
 });
 
@@ -44,6 +43,5 @@ UsuarioSchema.methods.toJSON = function () {
     const { __v, password, _id, ...usuario } = this.toObject();
     usuario.uid = _id;
     return usuario;
-}
-
+};
 module.exports = model('Usuario', UsuarioSchema);

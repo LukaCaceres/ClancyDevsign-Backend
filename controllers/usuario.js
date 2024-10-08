@@ -66,34 +66,36 @@ const usuarioGET = async (req = request, res = response) => {
     }
 };
 
-// Actualizar un usuario
-const usuarioPUT = async (req = request, res = response) => {
+const usuarioPUT = async (req, res) => {
     const { id } = req.params;
-    const { password, ...resto } = req.body;
+    const { password, correo, ...otrosDatos } = req.body; // Excluir ciertos campos
 
     try {
-        // Verificar si el usuario está activo
-        const usuario = await Usuario.findById(id);
-        if (!usuario.estado) {
-            return res.status(400).json({ msg: 'Usuario no encontrado o inactivo' });
+        // Verificar si el usuario que intenta actualizar es el mismo que está autenticado o si es administrador
+        if (req.usuario.rol !== 'ADMIN_ROLE' && req.usuario._id.toString() !== id) {
+            return res.status(403).json({
+                msg: 'No tienes permiso para modificar este usuario.'
+            });
         }
 
-        // Encriptar la nueva contraseña si es proporcionada
+        // Si se quiere actualizar la contraseña
         if (password) {
             const salt = bcryptjs.genSaltSync();
-            resto.password = bcryptjs.hashSync(password, salt);
+            otrosDatos.password = bcryptjs.hashSync(password, salt); // Encriptar la nueva contraseña
         }
 
-        // Actualizar el usuario
-        const usuarioActualizado = await Usuario.findByIdAndUpdate(id, resto, { new: true });
+        // Actualizar el usuario (solo los campos permitidos)
+        const usuario = await Usuario.findByIdAndUpdate(id, otrosDatos, { new: true });
 
         res.json({
             msg: 'Usuario actualizado correctamente',
-            usuario: usuarioActualizado
+            usuario
         });
     } catch (error) {
         console.error('Error al actualizar usuario:', error);
-        res.status(500).json({ msg: 'Error en el servidor' });
+        res.status(500).json({
+            msg: 'Error en el servidor al actualizar el usuario'
+        });
     }
 };
 
@@ -113,6 +115,8 @@ const usuarioDELETE = async (req = request, res = response) => {
         res.status(500).json({ msg: 'Error en el servidor' });
     }
 };
+
+
 
 module.exports = {
     usuarioPOST,
