@@ -16,7 +16,6 @@ const UsuarioSchema = Schema({
 
 // Hook pre-save para crear y asignar carrito y favoritos solo en la creación del usuario
 UsuarioSchema.pre('save', async function (next) {
-    // Verificamos si el documento es nuevo para evitar la creación de carritos/favoritos en cada actualización
     if (this.isNew) {
         try {
             // Crear un nuevo carrito y asignar el usuario al carrito
@@ -24,19 +23,15 @@ UsuarioSchema.pre('save', async function (next) {
             await nuevoCarrito.save();
             this.carrito = nuevoCarrito._id;
 
-            // Crear nuevos favoritos y asignar el usuario a favoritos
-            const nuevosFavoritos = new Favorito({ usuario: this._id, productos: [] });
-            await nuevosFavoritos.save();
-            this.favorito = nuevosFavoritos._id;
-
-            next(); // Continuar con el proceso de guardado
+            next();
         } catch (error) {
-            next(error); // Pasar el error al siguiente middleware
+            next(error);
         }
     } else {
-        next(); // Si no es un documento nuevo, pasar al siguiente middleware sin crear carrito/favoritos
+        next();
     }
 });
+
 
 //quitar datos extras en la respuesta JSON
 UsuarioSchema.methods.toJSON = function () {
