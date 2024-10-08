@@ -7,7 +7,8 @@ const ProductoSchema = Schema({
     imagenes: [
         { type: String }
     ],
-    activo: { type: Boolean, default: true }
+    activo: { type: Boolean, default: true },
+    destacado: { type: Boolean, default: false }
 })
 
 module.exports = model('Producto', ProductoSchema) 
