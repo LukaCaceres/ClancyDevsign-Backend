@@ -32,7 +32,8 @@ class Server {
         // Configurar CORS para permitir solo ciertos orígenes
         this.app.use(cors({
             origin: ['http://localhost:5173', 'https://clancydevsign.netlify.app'], // Lista de orígenes permitidos
-            methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+            allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true, 
         }));
 
