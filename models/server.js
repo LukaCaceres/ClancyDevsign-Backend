@@ -28,12 +28,12 @@ class Server {
         await dbConection();
     }
 
-    middlewares() { // Cuando se usa el -USE- se habla de un middleware
+    middlewares() { 
         // Configurar CORS para permitir solo ciertos orígenes
         this.app.use(cors({
             origin: ['http://localhost:5173', 'https://clancydevsign.netlify.app'], // Lista de orígenes permitidos
-            methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos HTTP permitidos
-            credentials: true, // Si necesitas soportar cookies o autenticación basada en tokens
+            methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+            credentials: true, 
         }));
 
         // Leer lo que envía el usuario por el body de la petición
