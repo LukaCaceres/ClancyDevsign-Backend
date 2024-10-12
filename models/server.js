@@ -33,7 +33,7 @@ class Server {
         this.app.use(cors({
             origin: ['http://localhost:5173', 'https://clancydevsign.netlify.app'], // Lista de orígenes permitidos
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
-            allowedHeaders: ['Content-Type', 'Authorization'],
+            allowedHeaders: ['Content-Type', 'Authorization', "x-token"],
             credentials: true, 
         }));
 
